@@ -20,6 +20,21 @@ export type Enum<T extends { [Variant: string]: any }> = {
 Now whenever you write a type with `Enum` definition at the root of a file (cannot be nested in another block), then
 `enum-ts` will be able to generate exhaustive pattern matchers and constructor code for you!
 
+## Install
+
+This is currently just an executable you can install with
+```sh
+cargo install enum-ts
+```
+
+Then, you can test it out with one of the examples in `tests/` or in this README:
+
+```sh
+cat ./tests/result.ts | enum-ts
+```
+
+Which will print the generated enum matcher helpers!
+
 ## Examples
 
 ### Result
