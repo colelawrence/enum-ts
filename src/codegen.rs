@@ -262,7 +262,7 @@ export type Stoplight = Enum<{
             export function Err<O, E>(contents: E): Result<O, E> {
                 return { t: "Err", c: contents };
             }
-            export function match<O, E, R>(fns: {
+            export function apply<O, E, R>(fns: {
                 Ok(content: O): R;
                 Err(content: E): R;
             }): (value: Result<O, E>) => R {
@@ -270,6 +270,15 @@ export type Stoplight = Enum<{
                     // @ts-ignore
                     return fns[value.t](value.c);
                 };
+            }
+            export function match<O, E, R>(
+                value: Result<O, E>,
+                fns: {
+                    Ok(content: O): R;
+                    Err(content: E): R;
+                }
+            ): R {
+                return apply(fns)(value);
             }
         }
         export namespace Stoplight {
@@ -282,7 +291,7 @@ export type Stoplight = Enum<{
             export function Red(contents: 0): Stoplight {
                 return { t: "Red", c: contents };
             }
-            export function match<R>(fns: {
+            export function apply<R>(fns: {
                 Green(content: 0): R;
                 Yellow(content: 0): R;
                 Red(content: 0): R;
@@ -291,6 +300,16 @@ export type Stoplight = Enum<{
                     // @ts-ignore
                     return fns[value.t](value.c);
                 };
+            }
+            export function match<R>(
+                value: Stoplight,
+                fns: {
+                    Green(content: 0): R;
+                    Yellow(content: 0): R;
+                    Red(content: 0): R;
+                }
+            ): R {
+                return apply(fns)(value);
             }
         }
         "###)
