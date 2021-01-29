@@ -1,8 +1,7 @@
 /**
  * This special type can help generate pattern matchers for you!
  * Just use it as so:
- *
- *    // gen: enum-matcher
+ *    // enum-ts
  *    type Result<Ok, Err> = Enum<{
  *      Ok: Ok,
  *      Err: Err,

@@ -3,10 +3,13 @@ name = "enum-ts"
 version = "0.1.0"
 authors = ["Cole Lawrence <cole@colelawrence.com>"]
 edition = "2018"
+license = "MIT OR Apache-2.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-insta = "1.5.3"
 once_cell = "1.5.2"
 regex = "1.4.3"
+
+[dev-dependencies]
+insta = "1.5.3"
