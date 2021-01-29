@@ -23,6 +23,7 @@ Now whenever you write a type with `Enum` definition at the root of a file (cann
 ## Install
 
 This is currently just an executable you can install with
+
 ```sh
 cargo install enum-ts
 ```
@@ -34,6 +35,23 @@ cat ./tests/result.ts | enum-ts
 ```
 
 Which will print the generated enum matcher helpers!
+
+### CLI
+
+```sh
+enum-ts
+# no arguments puts enum-ts into pipe-mode
+
+cat my-file.ts | enum-ts
+# prints what would be generated from this file (mostly for debugging purposes)
+
+enum-ts --write .
+# recursively walks down the directory looking for *.ts & *.tsx files
+# to write updates to directly
+
+enum-ts .
+# "dry-run" will only print out what it would have rewritten the files to if given the `--write` flag.
+```
 
 ## Examples
 
@@ -85,7 +103,7 @@ namespace Result {
 **Usage**
 
 ```typescript
-const res = Result.Ok<string, any>("okay value")
+const res = Result.Ok<string, any>("okay value");
 Result.match(res, {
   Ok(value) {
     // do something with value
@@ -93,9 +111,8 @@ Result.match(res, {
   Err(err) {
     // do something with err
   },
-})
+});
 ```
-
 
 #### License
 

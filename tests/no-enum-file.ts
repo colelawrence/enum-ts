@@ -1,0 +1,1 @@
+type NoEnum = 1;

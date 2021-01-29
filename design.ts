@@ -6,11 +6,7 @@ type Result<Ok, Err> = Enum<{
   Err: Err;
 }>;
 
-// ---- enum-ts generated ----
-
-// name = "Result"
-// generics = "Ok, Err"
-// variants = { t: "Ok", c: "Ok" }, { t: "Err", c: "Err" }
+//#region enum-ts generated <7701be5949d85c9e>
 namespace Result {
   export function Ok<Ok, Err>(contents: Ok): Result<Ok, Err> {
     return { t: "Ok", c: contents };
@@ -37,3 +33,4 @@ namespace Result {
     return apply(fns)(value);
   }
 }
+//#endregion

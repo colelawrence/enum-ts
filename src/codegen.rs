@@ -1,121 +1,4 @@
-use once_cell::sync::Lazy;
-use regex::Regex;
-
-#[derive(Debug)]
-pub struct TSEnum {
-    // type name
-    name: String,
-    // list of generics sans < > if there are generics
-    generics: Option<String>,
-    // t & c pairs
-    variants: Vec<(String, String)>,
-    export: bool,
-}
-
-// Only matches enums which are on the first level
-static RE_ENUM: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"\n(?P<export>export\s+)?type[\s]+(?P<name>\w+)(?:<(?P<generics>[\w\s,]+)>)?\s*=\s*Enum<\{(?P<variants>[\s\S]+?)\n\}>").unwrap()
-});
-static RE_VARIANTS_INDENT: Lazy<Regex> = Lazy::new(|| Regex::new(r"^\n([\t ]+)").unwrap());
-// after normalized with indent
-static RE_VARIANT: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"\n(?P<name>\w+):\s*(?P<contents>[^\n;,]+(?:\n[ \t]+[\s\S]+?\n[\]\}>]+)?)").unwrap()
-});
-
-#[derive(Debug)]
-pub struct Parsed {
-    enums: Vec<TSEnum>,
-    indent: String,
-}
-
-pub fn parse(source: &str) -> Parsed {
-    let mut enums = Vec::new();
-    let mut indent = String::new();
-    for cap in RE_ENUM.captures_iter(&source) {
-        let variants: &str = &cap["variants"];
-        let indent_match: &str = &RE_VARIANTS_INDENT
-            .captures(&variants)
-            .expect("at least one variant + indented")[1];
-        let unindented_variants: String = variants
-            .lines()
-            .into_iter()
-            .map(|line| {
-                let unindented = line.replace(indent_match, "\n");
-                assert!(
-                    line.len() == 0 || unindented != line,
-                    "line indentation is irregular:>>>{}<<<",
-                    line
-                );
-                unindented
-            })
-            .collect();
-        indent = indent_match.to_string();
-
-        enums.push(TSEnum {
-            name: cap["name"].to_string(),
-            generics: cap.name("generics").map(|val| val.as_str().to_string()),
-            export: cap.name("export").is_some(),
-            variants: RE_VARIANT
-                .captures_iter(&unindented_variants)
-                .map(|cap| (cap["name"].to_string(), cap["contents"].to_string()))
-                .collect(),
-        });
-    }
-
-    Parsed { indent, enums }
-}
-
-#[derive(Clone)]
-struct Source {
-    indent: String,
-    code: String,
-    end: String,
-}
-
-impl Source {
-    fn new(indent: String) -> Self {
-        Source {
-            indent,
-            code: String::new(),
-            end: String::new(),
-        }
-    }
-    fn push(&mut self, s: &str) {
-        self.code.push_str(s);
-    }
-    fn push_end(&mut self, s: &str) {
-        self.end.push_str(s);
-    }
-    fn ln_push(&mut self, s: &str) {
-        self.code.push_str("\n");
-        self.code.push_str(s);
-    }
-    fn ln_push_1(&mut self, s: &str) {
-        self.code.push_str("\n");
-        self.code.push_str(&self.indent);
-        self.code.push_str(s);
-    }
-    fn ln_push_2(&mut self, s: &str) {
-        self.code.push_str("\n");
-        self.code.push_str(&self.indent);
-        self.code.push_str(&self.indent);
-        self.code.push_str(s);
-    }
-    fn push_source_1(&mut self, other: Self) {
-        let indent_1 = "\n".to_owned() + &self.indent;
-        self.code
-            .extend(other.finish().replace("\n", &indent_1).drain(..));
-    }
-    fn push_source_2(&mut self, other: Self) {
-        let indent_2 = "\n".to_owned() + &self.indent + &self.indent;
-        self.code
-            .extend(other.finish().replace("\n", &indent_2).drain(..));
-    }
-    fn finish(mut self) -> String {
-        self.code.extend(self.end.drain(..));
-        self.code
-    }
-}
+use crate::prelude::*;
 
 pub fn generate(Parsed { enums, indent }: Parsed) -> String {
     let mut code = String::new();
@@ -127,7 +10,6 @@ pub fn generate(Parsed { enums, indent }: Parsed) -> String {
     } in enums
     {
         let mut ns_src = Source::new(indent.clone());
-        ns_src.ln_push("");
         if export {
             ns_src.push("export ");
         }
@@ -182,7 +64,7 @@ pub fn generate(Parsed { enums, indent }: Parsed) -> String {
             match_src.push(&gen);
             match_src.push(",");
             match_src.ln_push_1("fns: {");
-            
+
             let mut apply_src = Source::new(indent.clone());
             // "export function apply<Ok, Err, R>(fns: {"
             apply_src.ln_push("export function apply<");
@@ -224,156 +106,63 @@ pub fn generate(Parsed { enums, indent }: Parsed) -> String {
             ns_src.push_source_1(match_src);
         }
 
+        if !code.is_empty() {
+            code += "\n"
+        }
         code.extend(ns_src.finish().drain(..));
     }
 
     code
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use insta::assert_debug_snapshot;
-    use insta::assert_display_snapshot;
+#[derive(Clone)]
+struct Source {
+    indent: String,
+    code: String,
+    end: String,
+}
 
-    #[test]
-    fn parse_result_with_generics_generate() {
-        assert_display_snapshot!(generate(parse(
-            r###"
-// enum: factory, match
-type Result<O, E> = Enum<{
-    Ok: O;
-    Err: E;
-}>;
-
-// enum: factory, match
-export type Stoplight = Enum<{
-    Green: 0;
-    Yellow: 0;
-    Red: 0;
-}>;
-            "###,
-        )), @r###"
-
-        namespace Result {
-            export function Ok<O, E>(contents: O): Result<O, E> {
-                return { t: "Ok", c: contents };
-            }
-            export function Err<O, E>(contents: E): Result<O, E> {
-                return { t: "Err", c: contents };
-            }
-            export function apply<O, E, R>(fns: {
-                Ok(content: O): R;
-                Err(content: E): R;
-            }): (value: Result<O, E>) => R {
-                return function matchResultApply(value) {
-                    // @ts-ignore
-                    return fns[value.t](value.c);
-                };
-            }
-            export function match<O, E, R>(
-                value: Result<O, E>,
-                fns: {
-                    Ok(content: O): R;
-                    Err(content: E): R;
-                }
-            ): R {
-                return apply(fns)(value);
-            }
+impl Source {
+    fn new(indent: String) -> Self {
+        Source {
+            indent,
+            code: String::new(),
+            end: String::new(),
         }
-        export namespace Stoplight {
-            export function Green(contents: 0): Stoplight {
-                return { t: "Green", c: contents };
-            }
-            export function Yellow(contents: 0): Stoplight {
-                return { t: "Yellow", c: contents };
-            }
-            export function Red(contents: 0): Stoplight {
-                return { t: "Red", c: contents };
-            }
-            export function apply<R>(fns: {
-                Green(content: 0): R;
-                Yellow(content: 0): R;
-                Red(content: 0): R;
-            }): (value: Stoplight) => R {
-                return function matchStoplightApply(value) {
-                    // @ts-ignore
-                    return fns[value.t](value.c);
-                };
-            }
-            export function match<R>(
-                value: Stoplight,
-                fns: {
-                    Green(content: 0): R;
-                    Yellow(content: 0): R;
-                    Red(content: 0): R;
-                }
-            ): R {
-                return apply(fns)(value);
-            }
-        }
-        "###)
     }
-
-    #[test]
-    fn parse_result_with_generics() {
-        assert_debug_snapshot!(parse(
-            r###"
-// enum: factory, match
-type Result<Ok, Err> = Enum<{
-    Ok: Ok;
-    Err: Err;
-}>;
-
-// enum: factory, match
-type Stoplight = Enum<{
-    Green: 0;
-    Yellow: 0;
-    Red: 0;
-}>;
-            "###,
-        ), @r###"
-        Parsed {
-            enums: [
-                TSEnum {
-                    name: "Result",
-                    generics: Some(
-                        "Ok, Err",
-                    ),
-                    variants: [
-                        (
-                            "Ok",
-                            "Ok",
-                        ),
-                        (
-                            "Err",
-                            "Err",
-                        ),
-                    ],
-                    export: false,
-                },
-                TSEnum {
-                    name: "Stoplight",
-                    generics: None,
-                    variants: [
-                        (
-                            "Green",
-                            "0",
-                        ),
-                        (
-                            "Yellow",
-                            "0",
-                        ),
-                        (
-                            "Red",
-                            "0",
-                        ),
-                    ],
-                    export: false,
-                },
-            ],
-            indent: "    ",
-        }
-        "###)
+    fn push(&mut self, s: &str) {
+        self.code.push_str(s);
+    }
+    fn push_end(&mut self, s: &str) {
+        self.end.push_str(s);
+    }
+    fn ln_push(&mut self, s: &str) {
+        self.code.push_str("\n");
+        self.code.push_str(s);
+    }
+    fn ln_push_1(&mut self, s: &str) {
+        self.code.push_str("\n");
+        self.code.push_str(&self.indent);
+        self.code.push_str(s);
+    }
+    fn ln_push_2(&mut self, s: &str) {
+        self.code.push_str("\n");
+        self.code.push_str(&self.indent);
+        self.code.push_str(&self.indent);
+        self.code.push_str(s);
+    }
+    fn push_source_1(&mut self, other: Self) {
+        let indent_1 = "\n".to_owned() + &self.indent;
+        self.code
+            .extend(other.finish().replace("\n", &indent_1).drain(..));
+    }
+    fn push_source_2(&mut self, other: Self) {
+        let indent_2 = "\n".to_owned() + &self.indent + &self.indent;
+        self.code
+            .extend(other.finish().replace("\n", &indent_2).drain(..));
+    }
+    fn finish(mut self) -> String {
+        self.code.extend(self.end.drain(..));
+        self.code
     }
 }
