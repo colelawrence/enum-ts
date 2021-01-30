@@ -1,4 +1,4 @@
-import { Enum } from "../enum";
+import { Enum } from "./enum";
 
 export type Stoplight = Enum<{
   Green: 0;
@@ -6,7 +6,7 @@ export type Stoplight = Enum<{
   Red: 0;
 }>;
 
-//#region enum-ts generated <99d80798e9f9a29>
+//#region enum-ts generated <992d80798e9f9a29>
 export namespace Stoplight {
   export function Green(contents: 0): Stoplight {
     return { t: "Green", c: contents };

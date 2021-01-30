@@ -15,13 +15,13 @@ static RE_ENUM_TS_REGION: Lazy<Regex> = Lazy::new(|| {
     let mut source = regex::escape(PREFIX_PRE_HASH);
     source.push_str(r"(?P<hash>\w*)"); // maybe some hash
     source.extend(regex::escape(PREFIX_POST_HASH).drain(..));
-    source.push_str(r"[\s\S]+?"); // everything non-greedy
+    source.push_str(r"[\s\S]*?"); // everything non-greedy
     source.extend(regex::escape(SUFFIX).drain(..));
 
     Regex::new(&source).unwrap()
 });
 
-pub fn rewrite(contents: &str) -> Option<String> {
+fn make_edit_offsets(contents: &str) -> Option<(usize, usize, String)> {
     let parsed = parse(contents);
     if parsed.enums.is_empty() {
         // no enums to generate
@@ -38,20 +38,42 @@ pub fn rewrite(contents: &str) -> Option<String> {
         to_write.extend(generate(parsed).drain(..));
         to_write.push_str(&SUFFIX);
 
-        let mut to_write_applied = Some(to_write);
-        let mut applied = RE_ENUM_TS_REGION
-            .replace_all(&contents, |_: &regex::Captures| {
-                to_write_applied.take().unwrap_or_default()
-            })
-            .to_string();
-
-        if let Some(mut to_write_still) = to_write_applied {
-            // it wasn't replaced in the document, so put it at the end
-            applied.extend(to_write_still.drain(..));
-        }
-
-        Some(applied)
+        Some(
+            if let Some(replace_at) = RE_ENUM_TS_REGION.find(&contents) {
+                let (start, end) = (replace_at.start(), replace_at.end());
+                (start, end, to_write)
+            } else {
+                let end = contents.len() - 1;
+                (end, end, to_write)
+            },
+        )
     }
+}
+
+pub fn make_edit(contents: &str) -> Option<(Position, Position, String)> {
+    make_edit_offsets(&contents).map(|(start_offset, end_offset, to_insert)| {
+        let mut str_pos = StringPositions::new(&contents);
+        (
+            str_pos
+                .get_pos(start_offset)
+                .expect("start replace has line column"),
+            str_pos
+                .get_pos(end_offset)
+                .expect("end replace has line column"),
+            to_insert,
+        )
+    })
+}
+
+pub fn rewrite(contents: &str) -> Option<String> {
+    make_edit_offsets(contents).map(|(start_offset, end_offset, mut content)| {
+        let (before, _) = contents.split_at(start_offset);
+        let (_, after) = contents.split_at(end_offset);
+        let mut to_write = String::from(before);
+        to_write.extend(content.drain(..));
+        to_write.push_str(after);
+        to_write
+    })
 }
 
 pub fn rewrite_file<P: AsRef<Path>>(path: P, write: bool) -> bool {

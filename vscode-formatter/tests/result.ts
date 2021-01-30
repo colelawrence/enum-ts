@@ -1,4 +1,4 @@
-import { Enum } from "../enum";
+import { Enum } from "./enum";
 
 export type Result<O, E> = Enum<{
   Ok: O;

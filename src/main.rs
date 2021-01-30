@@ -5,11 +5,14 @@ use std::{env, io};
 
 mod codegen;
 mod parser;
+mod string_utils;
 mod write;
 
 pub use codegen::*;
 pub use parser::*;
 pub use write::*;
+
+pub(crate) use string_utils::*;
 
 pub(crate) mod prelude {
     pub use crate::{Parsed, TSEnum};
@@ -25,19 +28,43 @@ fn main() {
     };
 
     match mode {
-        args::Mode::Pipe => pipe_mode(),
+        args::Mode::Pipe(mode) => pipe_mode(mode),
         args::Mode::Write(write_options) => write_mode(write_options),
     }
 }
 
-fn pipe_mode() {
+fn pipe_mode(mode: args::PipeMode) {
     let mut input = String::new();
     let stdin = io::stdin();
     loop {
         match stdin.read_line(&mut input) {
             Ok(0) => {
-                let parsed = parse(&input);
-                println!("{}", generate(parsed));
+                match mode {
+                    args::PipeMode::ShowGenerated => {
+                        let parsed = parse(&input);
+                        println!("{}", generate(parsed));
+                    }
+                    args::PipeMode::ShowReplaceRangeVSCode => {
+                        if let Some((start, end, to_write)) = make_edit(&input) {
+                            eprintln!(
+                                "update-range: L{}:{}-L{}:{}",
+                                start.line, start.col, end.line, end.col
+                            );
+                            println!("{}", to_write);
+                        } else {
+                            eprintln!("no-update");
+                        }
+                    }
+                    args::PipeMode::ShowFullFile => {
+                        if let Some(to_write) = rewrite(&input) {
+                            eprintln!("Updated");
+                            println!("{}", to_write);
+                        } else {
+                            eprintln!("No change");
+                            println!("{}", input);
+                        }
+                    }
+                }
                 return;
             }
             Ok(_number_of_bytes_read) => {
@@ -112,8 +139,15 @@ mod args {
         // pub ignore: Vec<String>,
     }
 
+    #[derive(Debug)]
+    pub enum PipeMode {
+        ShowGenerated,
+        ShowReplaceRangeVSCode,
+        ShowFullFile,
+    }
+
     pub enum Mode {
-        Pipe,
+        Pipe(PipeMode),
         Write(WriteOptions),
     }
 
@@ -121,10 +155,22 @@ mod args {
         pub fn from_args(cwd: PathBuf, args: Vec<String>) -> Result<Self, String> {
             let mut args_iterator = args.into_iter().peekable();
             let _executable = args_iterator.next();
-            if args_iterator.peek().is_none() {
-                // no args will always be pipe mode
-                return Ok(Mode::Pipe);
+            match args_iterator.peek() {
+                Some(arg) if arg == "--edit-l1c0" => {
+                    // one arg for edit mode
+                    return Ok(Mode::Pipe(PipeMode::ShowReplaceRangeVSCode));
+                }
+                Some(arg) if arg == "--full" => {
+                    // one arg for edit mode
+                    return Ok(Mode::Pipe(PipeMode::ShowFullFile));
+                }
+                None => {
+                    // no args will always be pipe mode
+                    return Ok(Mode::Pipe(PipeMode::ShowGenerated));
+                }
+                _ => {}
             }
+
             let mut write_options = WriteOptions {
                 dry_run: true,
                 base_dir: cwd,

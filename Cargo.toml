@@ -4,19 +4,20 @@ categories = ["command-line-interface", "text-processing", "web-programming"]
 description = "TypeScript Enum pattern matcher codegen"
 documentation = "https://docs.rs/enum-ts"
 edition = "2018"
+exclude = ["vscode-formatter"]
 keywords = ["typescript", "pattern", "match", "mvvm", "modeling"]
 license = "MIT OR Apache-2.0"
 name = "enum-ts"
 readme = "README.md"
 repository = "https://github.com/colelawrence/enum-ts"
-version = "0.1.2"
+version = "0.1.3"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+ignore = "0.4.17"
 once_cell = "1.5.2"
 regex = "1.4.3"
-ignore = "0.4.17"
 
 [dev-dependencies]
 insta = "1.5.3"
