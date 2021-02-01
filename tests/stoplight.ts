@@ -6,25 +6,25 @@ export type Stoplight = Enum<{
   Red: 0;
 }>;
 
-//#region enum-ts generated <99d80798e9f9a29>
+//#region enum-ts generated <fe4264a17e80cd23>
 export namespace Stoplight {
   export function Green(contents: 0): Stoplight {
-    return { t: "Green", c: contents };
+    return ["Green", contents];
   }
   export function Yellow(contents: 0): Stoplight {
-    return { t: "Yellow", c: contents };
+    return ["Yellow", contents];
   }
   export function Red(contents: 0): Stoplight {
-    return { t: "Red", c: contents };
+    return ["Red", contents];
   }
   export function apply<R>(fns: {
     Green(content: 0): R;
     Yellow(content: 0): R;
     Red(content: 0): R;
   }): (value: Stoplight) => R {
-    return function matchStoplightApply(value) {
+    return function matchStoplightApply([name, contents]) {
       // @ts-ignore
-      return fns[value.t](value.c);
+      return fns[name](contents);
     };
   }
   export function match<R>(

@@ -8,5 +8,5 @@
  *    }>
  */
 export type Enum<T extends { [Variant: string]: any }> = {
-  [P in keyof T]: { t: P; c: T[P] };
+  [P in keyof T]: [P, T[P]];
 }[keyof T];

@@ -40,11 +40,11 @@ pub fn generate(Parsed { enums, indent }: Parsed) -> String {
             create_enum_src.push(&name);
             create_enum_src.push(&gen);
             create_enum_src.push(" {");
-            // "return { t: "Ok", c: contents };"
+            // "return ["Ok", contents];"
             create_enum_src.push_end("\n}");
-            create_enum_src.ln_push_1("return { t: \"");
+            create_enum_src.ln_push_1("return [\"");
             create_enum_src.push(&t_name);
-            create_enum_src.push("\", c: contents };");
+            create_enum_src.push("\", contents];");
 
             ns_src.push_source_1(create_enum_src);
         }
@@ -98,9 +98,9 @@ pub fn generate(Parsed { enums, indent }: Parsed) -> String {
             // "return function matchStoplightApply(value) {"
             apply_src.ln_push_1("return function match");
             apply_src.push(&name);
-            apply_src.push("Apply(value) {");
+            apply_src.push("Apply([name, contents]) {");
             apply_src.ln_push_2("// @ts-ignore");
-            apply_src.ln_push_2("return fns[value.t](value.c);");
+            apply_src.ln_push_2("return fns[name](contents);");
             apply_src.ln_push_1("};");
             ns_src.push_source_1(apply_src);
             ns_src.push_source_1(match_src);

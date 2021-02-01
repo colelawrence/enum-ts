@@ -6,6 +6,8 @@ use std::fs;
 use std::hash::{Hash, Hasher};
 use std::{collections::hash_map::DefaultHasher, path::Path};
 
+// if the enum type structure ever updates, then increment this
+const ENUM_STRUCTURE_VERSION: usize = 1;
 // Only matches enums which are on the first level
 static PREFIX_PRE_HASH: &str = "\n//#region enum-ts generated <";
 static PREFIX_POST_HASH: &str = ">\n";
@@ -29,6 +31,7 @@ fn make_edit_offsets(contents: &str) -> Option<(usize, usize, String)> {
     }
     let mut hasher = DefaultHasher::new();
     parsed.hash(&mut hasher);
+    ENUM_STRUCTURE_VERSION.hash(&mut hasher);
     let hash_str = format!("{:x}", hasher.finish());
     let prefix: String = String::from(PREFIX_PRE_HASH) + &hash_str + PREFIX_POST_HASH;
     if contents.contains(&prefix) {
