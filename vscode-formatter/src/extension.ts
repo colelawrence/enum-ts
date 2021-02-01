@@ -10,9 +10,13 @@ type Options = {
   enumTSExecutable: string;
 };
 
+const REGION_TO_FOLD = /#region enum-ts generated/g;
+
+const FIX_COMMAND = "enum-ts.fix";
+
 export function activate(context: vscode.ExtensionContext) {
   // 👎 formatter implemented as separate command
-  vscode.commands.registerCommand("enum-ts.fix", () => {
+  vscode.commands.registerCommand(FIX_COMMAND, () => {
     const { activeTextEditor } = vscode.window;
 
     if (activeTextEditor && langSet.has(activeTextEditor.document.languageId)) {
@@ -40,7 +44,6 @@ export function activate(context: vscode.ExtensionContext) {
     }
   });
 
-  const REGION_TO_FOLD = /#region enum-ts generated/g;
   vscode.window.onDidChangeActiveTextEditor(async (textEditor) => {
     const document = textEditor.document;
     if (langSet.has(document.languageId)) {
@@ -58,32 +61,22 @@ export function activate(context: vscode.ExtensionContext) {
       textEditor.selection = prevSelection;
     }
   });
-  // vscode.workspace.onDidOpenTextDocument(async (document) => {
-  //   const textEditor = vscode.window.visibleTextEditors.find(
-  //     (visibleTextEditor) => visibleTextEditor.document === document
-  //   );
-  //   if (!textEditor) return;
-  //   vscode.window.showInformationMessage(
-  //     "Automatically folding generated enum"
-  //   );
-  //   if (langSet.has(document.languageId)) {
-  //     const text = document.getText();
-  //     let match: RegExpExecArray;
-  //     const prevSelection = textEditor.selection;
-  //     while (((match = REGION_TO_FOLD.exec(text)), match != null)) {
-  //       const start = document.positionAt(match.index);
-  //       const end = document.positionAt(match.index + match[0].length);
-  //       textEditor.selection = new vscode.Selection(
-  //         start.line,
-  //         start.character,
-  //         end.line,
-  //         end.character
-  //       );
-  //       await vscode.commands.executeCommand("editor.fold");
-  //     }
-  //     textEditor.selection = prevSelection;
-  //   }
-  // });
+
+  const ENUM_RE = /\bEnum\b/;
+
+  vscode.languages.registerCodeActionsProvider(langs, {
+    provideCodeActions(document, range, context, cancelToken) {
+      if (range.start.isEqual(range.end)) {
+        range = document.getWordRangeAtPosition(range.start);
+      }
+
+      if (ENUM_RE.test(document.getText(range))) {
+        return [{ command: FIX_COMMAND, title: "enum-ts: Regenerate Enum helpers" }];
+      }
+
+      return [];
+    },
+  });
 
   // 👍 formatter implemented using API
   vscode.languages.registerDocumentFormattingEditProvider(langs, {

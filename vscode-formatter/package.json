@@ -2,7 +2,7 @@
   "name": "enum-ts",
   "displayName": "enum-ts - Pattern Matching Code Generator",
   "description": "Use the enum-ts tool to regenerate enum definitions for a file.",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "publisher": "refactorordie",
   "repository": {
     "url": "https://github.com/colelawrence/enum-ts"
@@ -24,7 +24,7 @@
     "commands": [
       {
         "command": "enum-ts.fix",
-        "title": "Regenerate enum helpers"
+        "title": "enum-ts: Regenerate Enum helpers"
       }
     ]
   },
