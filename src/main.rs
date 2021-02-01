@@ -104,10 +104,10 @@ fn write_mode(mut options: args::WriteOptions) {
             |entry: std::result::Result<ignore::DirEntry, ignore::Error>| match &entry {
                 Ok(dir) => {
                     if let Some(file_type) = dir.file_type() {
-                        if file_type.is_file() {
-                            if RE_TYPESCRIPT_FILE.is_match(&dir.file_name().to_string_lossy()) {
-                                rewrite_file(dir.path(), write);
-                            }
+                        if file_type.is_file()
+                            && RE_TYPESCRIPT_FILE.is_match(&dir.file_name().to_string_lossy())
+                        {
+                            rewrite_file(dir.path(), write);
                         }
                     }
                     ignore::WalkState::Continue
@@ -194,7 +194,7 @@ mod args {
                         }
                     }
                     other => {
-                        if other.starts_with("-") {
+                        if other.starts_with('-') {
                             errors.push(format!("Unknown option: {:?}", other));
                         } else {
                             write_options.paths.push(next_option);
@@ -235,18 +235,24 @@ export type Stoplight = Enum<{
         )), @r###"
         namespace Result {
             export function Ok<O, E>(contents: O): Result<O, E> {
-                return { t: "Ok", c: contents };
+                return ["Ok", contents];
             }
             export function Err<O, E>(contents: E): Result<O, E> {
-                return { t: "Err", c: contents };
+                return ["Err", contents];
+            }
+            export function isOk<O, E>(item: Result): item is ["Ok", O] {
+                return item != null && item[0] === "Ok";
+            }
+            export function isErr<O, E>(item: Result): item is ["Err", E] {
+                return item != null && item[0] === "Err";
             }
             export function apply<O, E, R>(fns: {
                 Ok(content: O): R;
                 Err(content: E): R;
             }): (value: Result<O, E>) => R {
-                return function matchResultApply(value) {
+                return function matchResultApply([name, contents]) {
                     // @ts-ignore
-                    return fns[value.t](value.c);
+                    return fns[name](contents);
                 };
             }
             export function match<O, E, R>(
@@ -261,22 +267,31 @@ export type Stoplight = Enum<{
         }
         export namespace Stoplight {
             export function Green(contents: 0): Stoplight {
-                return { t: "Green", c: contents };
+                return ["Green", contents];
             }
             export function Yellow(contents: 0): Stoplight {
-                return { t: "Yellow", c: contents };
+                return ["Yellow", contents];
             }
             export function Red(contents: 0): Stoplight {
-                return { t: "Red", c: contents };
+                return ["Red", contents];
+            }
+            export function isGreen(item: Stoplight): item is ["Green", 0] {
+                return item != null && item[0] === "Green";
+            }
+            export function isYellow(item: Stoplight): item is ["Yellow", 0] {
+                return item != null && item[0] === "Yellow";
+            }
+            export function isRed(item: Stoplight): item is ["Red", 0] {
+                return item != null && item[0] === "Red";
             }
             export function apply<R>(fns: {
                 Green(content: 0): R;
                 Yellow(content: 0): R;
                 Red(content: 0): R;
             }): (value: Stoplight) => R {
-                return function matchStoplightApply(value) {
+                return function matchStoplightApply([name, contents]) {
                     // @ts-ignore
-                    return fns[value.t](value.c);
+                    return fns[name](contents);
                 };
             }
             export function match<R>(

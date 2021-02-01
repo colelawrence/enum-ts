@@ -238,10 +238,14 @@ here
 
         // Newline at start and end
         let input = r"
+
 testing
+
 the
 lines 
 here
+
+
 ";
         let actual: Vec<_> = lines_with_endings(input).collect();
         let expected = vec![

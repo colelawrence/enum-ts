@@ -43,7 +43,7 @@ pub fn parse(source: &str) -> Parsed {
             .map(|line| {
                 let unindented = line.replace(indent_match, "\n");
                 assert!(
-                    line.len() == 0 || unindented != line,
+                    line.is_empty() || unindented != line,
                     "line indentation is irregular:>>>{}<<<",
                     line
                 );

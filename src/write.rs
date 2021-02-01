@@ -32,10 +32,11 @@ fn make_edit_offsets(contents: &str) -> Option<(usize, usize, String)> {
     let mut hasher = DefaultHasher::new();
     parsed.hash(&mut hasher);
     ENUM_STRUCTURE_VERSION.hash(&mut hasher);
+    CODE_GEN_VERSION.hash(&mut hasher);
     let hash_str = format!("{:x}", hasher.finish());
     let prefix: String = String::from(PREFIX_PRE_HASH) + &hash_str + PREFIX_POST_HASH;
     if contents.contains(&prefix) {
-        return None;
+        None
     } else {
         let mut to_write = prefix;
         to_write.extend(generate(parsed).drain(..));
