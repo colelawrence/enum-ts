@@ -35,12 +35,13 @@ pub(super) fn generate(
     match_src.push(",");
     match_src.ln_push_1("fns: {");
     //
-    for (t_name, contents) in variants.iter() {
+    for (t_name, _) in variants.iter() {
         // "Ok(content: Ok): R;"
         let mut variant_fn_src = src.new_with_same_settings();
         variant_fn_src.ln_push(&t_name);
         variant_fn_src.push("(content: ");
-        variant_fn_src.push(&contents);
+        variant_fn_src.push(&t_name);
+        variant_fn_src.push(&braced_gen);
         variant_fn_src.push("): R;");
 
         apply_src.push_source_1(variant_fn_src.clone());

@@ -1,6 +1,6 @@
 {
   "name": "enum-ts-lib",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Enum type helper for enum-ts project",
   "main": "index.js",
   "author": {

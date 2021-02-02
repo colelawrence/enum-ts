@@ -41,7 +41,7 @@ pub fn parse(source: &str) -> Parsed {
             .lines()
             .into_iter()
             .map(|line| {
-                let unindented = line.replace(indent_match, "\n");
+                let unindented = line.replacen(&indent_match, "", 1);
                 assert!(
                     line.is_empty() || unindented != line,
                     "line indentation is irregular:>>>{}<<<",
@@ -49,7 +49,8 @@ pub fn parse(source: &str) -> Parsed {
                 );
                 unindented
             })
-            .collect();
+            .collect::<Vec<String>>()
+            .join("\n");
         indent = indent_match.to_string();
 
         enums.push(TSEnum {

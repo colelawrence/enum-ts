@@ -2,8 +2,8 @@ use super::*;
 
 pub(super) fn generate(
     TSEnum {
+        export,
         generics,
-        name,
         variants,
         ..
     }: &TSEnum,
@@ -11,18 +11,28 @@ pub(super) fn generate(
 ) {
     // ex "" or "<Ok, Err>"
     let braced_gen = braced_generic(&generics, None);
-    for (t_name, contents) in variants.iter() {
-        // "export function Ok<O, E>"
-        src.ln_push("export function ");
+    for (t_name, _) in variants.iter() {
+        // "export function Ok<O, E>("
+        src.ln_push("");
+        if *export {
+            src.push("export ");
+        }
+        src.push("function ");
         src.push(&t_name);
         src.push(&braced_gen);
-        // "(contents: Ok): Result<O, E> {"
-        src.push("(contents: ");
-        src.push(&contents);
-        src.push("): ");
-        src.push(&name);
+        src.push("(");
+        // "contents: Ok<O, E>"
+        src.push("contents: ");
+        // note: should be defined by type_aliases
+        src.push(&t_name);
         src.push(&braced_gen);
-        src.push(" {");
+        // "): { Ok: Ok<O, E> } {"
+        src.push("): { ");
+        src.push(&t_name);
+        src.push(": ");
+        src.push(&t_name);
+        src.push(&braced_gen);
+        src.push(" } {");
         // "return { Ok: contents };"
         src.ln_push_1("return { ");
         src.push(&t_name);

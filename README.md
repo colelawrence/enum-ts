@@ -59,7 +59,7 @@ enum-ts .
 
 **Input**
 
-```typescript
+```typescript //input(result)
 type Result<O, E> = Enum<{
   Ok: O;
   Err: E;
@@ -69,24 +69,26 @@ type Result<O, E> = Enum<{
 <details>
   <summary><b>Generated</b></summary>
 
-```typescript
+```typescript //generated(result)
+export type Ok<O, E> = O;
+export type Err<O, E> = E;
+export function Ok<O, E>(contents: Ok<O, E>): { Ok: Ok<O, E> } {
+  return { Ok: contents };
+}
+export function Err<O, E>(contents: Err<O, E>): { Err: Err<O, E> } {
+  return { Err: contents };
+}
+export function isOk<O, E>(item: Result<O, E>): item is { Ok: Ok<O, E> } {
+  return item != null && "Ok" in item;
+}
+export function isErr<O, E>(item: Result<O, E>): item is { Err: Err<O, E> } {
+  return item != null && "Err" in item;
+}
 export namespace Result {
-  export function Ok<O, E>(contents: O): Result<O, E> {
-    return { Ok: contents };
-  }
-  export function Err<O, E>(contents: E): Result<O, E> {
-    return { Err: contents };
-  }
-  export function isOk<O, E>(item: Result<O, E>): item is { Ok: O } {
-    return item != null && "Ok" in item;
-  }
-  export function isErr<O, E>(item: Result<O, E>): item is { Err: E } {
-    return item != null && "Err" in item;
-  }
   const unexpected = "Unexpected Enum variant for Result<O, E>";
   export function apply<O, E, R>(fns: {
-    Ok(content: O): R;
-    Err(content: E): R;
+    Ok(content: Ok<O, E>): R;
+    Err(content: Err<O, E>): R;
   }): (value: Result<O, E>) => R {
     return function matchResultApply(item) {
       return "Ok" in item
@@ -99,8 +101,8 @@ export namespace Result {
   export function match<O, E, R>(
     value: Result<O, E>,
     fns: {
-      Ok(content: O): R;
-      Err(content: E): R;
+      Ok(content: Ok<O, E>): R;
+      Err(content: Err<O, E>): R;
     }
   ): R {
     return apply(fns)(value);
@@ -113,7 +115,7 @@ export namespace Result {
 **Usage**
 
 ```typescript
-const res = Result.Ok<string, any>("okay value");
+const res = Ok<string, any>("okay value");
 Result.match(res, {
   Ok(value) {
     // do something with value
@@ -122,7 +124,77 @@ Result.match(res, {
     // do something with err
   },
 });
+if (isOk(res)) {
+  console.assert(res.Ok === "okay value");
+}
 ```
+
+### `BinaryTree<T>`
+
+**Input**
+
+```typescript //input(binary-tree)
+export type BinaryTree<T> = Enum<{
+  Leaf: T;
+  Branch: {
+    left: BinaryTree<T>;
+    right: BinaryTree<T>;
+  };
+}>;
+```
+
+<details>
+  <summary><b>Generated</b></summary>
+
+```typescript //generated(binary-tree)
+export type Leaf<T> = T;
+export type Branch<T> = {
+  left: BinaryTree<T>;
+  right: BinaryTree<T>;
+};
+export function Leaf<T>(contents: Leaf<T>): { Leaf: Leaf<T> } {
+  return { Leaf: contents };
+}
+export function Branch<T>(contents: Branch<T>): { Branch: Branch<T> } {
+  return { Branch: contents };
+}
+export function isLeaf<T>(item: BinaryTree<T>): item is { Leaf: Leaf<T> } {
+  return item != null && "Leaf" in item;
+}
+export function isBranch<T>(item: BinaryTree<T>): item is { Branch: Branch<T> } {
+  return item != null && "Branch" in item;
+}
+export namespace BinaryTree {
+  const unexpected = "Unexpected Enum variant for BinaryTree<T>";
+  export function apply<T, R>(fns: {
+    Leaf(content: Leaf<T>): R;
+    Branch(content: Branch<T>): R;
+  }): (value: BinaryTree<T>) => R {
+    return function matchBinaryTreeApply(item) {
+      return "Leaf" in item
+        ? fns.Leaf(item.Leaf)
+        : "Branch" in item
+        ? fns.Branch(item.Branch)
+        : (console.assert(false, unexpected, item) as never);
+    };
+  }
+  export function match<T, R>(
+    value: BinaryTree<T>,
+    fns: {
+      Leaf(content: Leaf<T>): R;
+      Branch(content: Branch<T>): R;
+    }
+  ): R {
+    return apply(fns)(value);
+  }
+}
+```
+
+</details>
+
+##### Development
+
+`cargo install --path ./enum-ts`: Install locally after cloning repo
 
 #### License
 

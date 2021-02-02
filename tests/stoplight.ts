@@ -6,31 +6,34 @@ export type Stoplight = Enum<{
   Red: 0;
 }>;
 
-//#region enum-ts generated <174a05206a9aaca1>
+//#region enum-ts generated <193cc55841409219>
+export type Green = 0;
+export type Yellow = 0;
+export type Red = 0;
+export function Green(contents: Green): { Green: Green } {
+  return { Green: contents };
+}
+export function Yellow(contents: Yellow): { Yellow: Yellow } {
+  return { Yellow: contents };
+}
+export function Red(contents: Red): { Red: Red } {
+  return { Red: contents };
+}
+export function isGreen(item: Stoplight): item is { Green: Green } {
+  return item != null && "Green" in item;
+}
+export function isYellow(item: Stoplight): item is { Yellow: Yellow } {
+  return item != null && "Yellow" in item;
+}
+export function isRed(item: Stoplight): item is { Red: Red } {
+  return item != null && "Red" in item;
+}
 export namespace Stoplight {
-  export function Green(contents: 0): Stoplight {
-    return { Green: contents };
-  }
-  export function Yellow(contents: 0): Stoplight {
-    return { Yellow: contents };
-  }
-  export function Red(contents: 0): Stoplight {
-    return { Red: contents };
-  }
-  export function isGreen(item: Stoplight): item is { Green: 0 } {
-    return item != null && "Green" in item;
-  }
-  export function isYellow(item: Stoplight): item is { Yellow: 0 } {
-    return item != null && "Yellow" in item;
-  }
-  export function isRed(item: Stoplight): item is { Red: 0 } {
-    return item != null && "Red" in item;
-  }
   const unexpected = "Unexpected Enum variant for Stoplight";
   export function apply<R>(fns: {
-    Green(content: 0): R;
-    Yellow(content: 0): R;
-    Red(content: 0): R;
+    Green(content: Green): R;
+    Yellow(content: Yellow): R;
+    Red(content: Red): R;
   }): (value: Stoplight) => R {
     return function matchStoplightApply(item) {
       return "Green" in item
@@ -45,9 +48,9 @@ export namespace Stoplight {
   export function match<R>(
     value: Stoplight,
     fns: {
-      Green(content: 0): R;
-      Yellow(content: 0): R;
-      Red(content: 0): R;
+      Green(content: Green): R;
+      Yellow(content: Yellow): R;
+      Red(content: Red): R;
     }
   ): R {
     return apply(fns)(value);

@@ -2,16 +2,22 @@ use crate::prelude::*;
 
 mod apply_match;
 mod creators;
+mod type_aliases;
 mod type_guards;
 
 // if the enum generated type structure ever updates, then increment this
-pub const CODE_GEN_VERSION: usize = 3;
+pub const CODE_GEN_VERSION: usize = 5;
 pub fn generate(Parsed { enums, indent }: Parsed) -> String {
     let mut code = String::new();
     for ts_enum in enums {
         let TSEnum { name, export, .. } = &ts_enum;
 
         let mut ns_src = Source::new(indent.clone());
+        type_aliases::generate(&ts_enum, &mut ns_src);
+        creators::generate(&ts_enum, &mut ns_src);
+        type_guards::generate(&ts_enum, &mut ns_src);
+
+        ns_src.ln_push("");
         // "export namespace Result {"
         if *export {
             ns_src.push("export ");
@@ -21,8 +27,6 @@ pub fn generate(Parsed { enums, indent }: Parsed) -> String {
         ns_src.push(" {");
 
         let mut nested_src = ns_src.new_with_same_settings();
-        creators::generate(&ts_enum, &mut nested_src);
-        type_guards::generate(&ts_enum, &mut nested_src);
         apply_match::generate(&ts_enum, &mut nested_src);
         ns_src.push_source_1(nested_src);
         ns_src.ln_push("}");
@@ -33,7 +37,7 @@ pub fn generate(Parsed { enums, indent }: Parsed) -> String {
         code.extend(ns_src.finish().drain(..));
     }
 
-    code
+    code.trim().to_string()
 }
 
 /// Generates `"<O, E>"` or `""` or `"<O, E, R>"` or "<R>" depending on params

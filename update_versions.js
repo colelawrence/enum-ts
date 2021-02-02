@@ -10,11 +10,27 @@ if (!tagMatch) {
 const tagSansV = tagMatch[1];
 
 const updatedFiles = [];
-updateFile("Cargo.toml", (current) =>
+updateFile("Cargo.toml", true, (current) =>
   current.replace(/\nversion = "[^\"]+"/, `\nversion = "${tagSansV}"`)
 );
-updateFile("packages/enum-ts-bin/package.json", (current) =>
+updateFile("packages/enum-ts-bin/package.json", true, (current) =>
   current.replace(/"version": "[^\"]+",/, `"version": "${tagSansV}",`)
+);
+updateFile("README.md", false, (current) =>
+  current.replace(
+    /(```typescript \/\/generated\(([\w\-]+)\))[\s\S]*?(```)/g,
+    function (_, opener, name, closer) {
+      const testFileSource = fs.readFileSync(
+        __dirname + "/tests/" + name + ".ts",
+        "utf8"
+      );
+      const generated = testFileSource.match(
+        /enum-ts generated <\w+>([\s\S]+?)\/\/#endregion/
+      );
+      console.assert(generated, `generated section was matched in ${name}`);
+      return `${opener}${generated[1]}${closer}`;
+    }
+  )
 );
 console.log(`Updated versions, now just create a commit, tag, and push tag:
 
@@ -27,13 +43,14 @@ echo "Done!"
 
 /**
  * @param {string} relativeFilePath
+ * @param {boolean} mustUpdate
  * @param {(contents: string) => (string | null)} updater
  */
-function updateFile(relativeFilePath, updater) {
+function updateFile(relativeFilePath, mustUpdate, updater) {
   const filePath = __dirname + "/" + relativeFilePath;
   const fileContents = fs.readFileSync(filePath, "utf8");
   const toWrite = updater(fileContents);
-  if (!toWrite || toWrite === fileContents)
+  if (!toWrite || (toWrite === fileContents && mustUpdate))
     throw new Error(`Failed to update ${relativeFilePath}.`);
   fs.writeFileSync(filePath, toWrite);
   updatedFiles.push(filePath);

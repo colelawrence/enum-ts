@@ -232,6 +232,14 @@ type Result<O, E> = Enum<{
     Err: E;
 }>;
 
+export type Nested = Enum<{
+    Leaf: 0;
+    Branch: {
+        left: Nested,
+        right: Nested,
+    }
+}>;
+
 export type Stoplight = Enum<{
     Green: 0;
     Yellow: 0;
@@ -239,73 +247,131 @@ export type Stoplight = Enum<{
 }>;
             "###,
         )), @r###"
+        type Ok<O, E> = O;
+        type Err<O, E> = E;
+        function Ok<O, E>(contents: Ok<O, E>): { Ok: Ok<O, E> } {
+            return { Ok: contents };
+        }
+        function Err<O, E>(contents: Err<O, E>): { Err: Err<O, E> } {
+            return { Err: contents };
+        }
+        function isOk<O, E>(item: Result<O, E>): item is { Ok: Ok<O, E> } {
+            return item != null && "Ok" in item;
+        }
+        function isErr<O, E>(item: Result<O, E>): item is { Err: Err<O, E> } {
+            return item != null && "Err" in item;
+        }
         namespace Result {
-            export function Ok<O, E>(contents: O): Result<O, E> {
-                return ["Ok", contents];
-            }
-            export function Err<O, E>(contents: E): Result<O, E> {
-                return ["Err", contents];
-            }
-            export function isOk<O, E>(item: Result<O, E>): item is ["Ok", O] {
-                return item != null && item[0] === "Ok";
-            }
-            export function isErr<O, E>(item: Result<O, E>): item is ["Err", E] {
-                return item != null && item[0] === "Err";
-            }
+            const unexpected = "Unexpected Enum variant for Result<O, E>";
             export function apply<O, E, R>(fns: {
-                Ok(content: O): R;
-                Err(content: E): R;
+                Ok(content: Ok<O, E>): R;
+                Err(content: Err<O, E>): R;
             }): (value: Result<O, E>) => R {
-                return function matchResultApply([name, contents]) {
-                    // @ts-ignore
-                    return fns[name](contents);
+                return function matchResultApply(item) {
+                    return "Ok" in item
+                        ? fns.Ok(item.Ok)
+                        : "Err" in item
+                        ? fns.Err(item.Err)
+                        : (console.assert(false, unexpected, item) as never);
                 };
             }
             export function match<O, E, R>(
                 value: Result<O, E>,
                 fns: {
-                    Ok(content: O): R;
-                    Err(content: E): R;
+                    Ok(content: Ok<O, E>): R;
+                    Err(content: Err<O, E>): R;
                 }
             ): R {
                 return apply(fns)(value);
             }
         }
-        export namespace Stoplight {
-            export function Green(contents: 0): Stoplight {
-                return ["Green", contents];
-            }
-            export function Yellow(contents: 0): Stoplight {
-                return ["Yellow", contents];
-            }
-            export function Red(contents: 0): Stoplight {
-                return ["Red", contents];
-            }
-            export function isGreen(item: Stoplight): item is ["Green", 0] {
-                return item != null && item[0] === "Green";
-            }
-            export function isYellow(item: Stoplight): item is ["Yellow", 0] {
-                return item != null && item[0] === "Yellow";
-            }
-            export function isRed(item: Stoplight): item is ["Red", 0] {
-                return item != null && item[0] === "Red";
-            }
+
+        export type Leaf = 0;
+        export type Branch = {
+            left: Nested,
+            right: Nested,
+        };
+        export function Leaf(contents: Leaf): { Leaf: Leaf } {
+            return { Leaf: contents };
+        }
+        export function Branch(contents: Branch): { Branch: Branch } {
+            return { Branch: contents };
+        }
+        export function isLeaf(item: Nested): item is { Leaf: Leaf } {
+            return item != null && "Leaf" in item;
+        }
+        export function isBranch(item: Nested): item is { Branch: Branch } {
+            return item != null && "Branch" in item;
+        }
+        export namespace Nested {
+            const unexpected = "Unexpected Enum variant for Nested";
             export function apply<R>(fns: {
-                Green(content: 0): R;
-                Yellow(content: 0): R;
-                Red(content: 0): R;
+                Leaf(content: Leaf): R;
+                Branch(content: Branch): R;
+            }): (value: Nested) => R {
+                return function matchNestedApply(item) {
+                    return "Leaf" in item
+                        ? fns.Leaf(item.Leaf)
+                        : "Branch" in item
+                        ? fns.Branch(item.Branch)
+                        : (console.assert(false, unexpected, item) as never);
+                };
+            }
+            export function match<R>(
+                value: Nested,
+                fns: {
+                    Leaf(content: Leaf): R;
+                    Branch(content: Branch): R;
+                }
+            ): R {
+                return apply(fns)(value);
+            }
+        }
+
+        export type Green = 0;
+        export type Yellow = 0;
+        export type Red = 0;
+        export function Green(contents: Green): { Green: Green } {
+            return { Green: contents };
+        }
+        export function Yellow(contents: Yellow): { Yellow: Yellow } {
+            return { Yellow: contents };
+        }
+        export function Red(contents: Red): { Red: Red } {
+            return { Red: contents };
+        }
+        export function isGreen(item: Stoplight): item is { Green: Green } {
+            return item != null && "Green" in item;
+        }
+        export function isYellow(item: Stoplight): item is { Yellow: Yellow } {
+            return item != null && "Yellow" in item;
+        }
+        export function isRed(item: Stoplight): item is { Red: Red } {
+            return item != null && "Red" in item;
+        }
+        export namespace Stoplight {
+            const unexpected = "Unexpected Enum variant for Stoplight";
+            export function apply<R>(fns: {
+                Green(content: Green): R;
+                Yellow(content: Yellow): R;
+                Red(content: Red): R;
             }): (value: Stoplight) => R {
-                return function matchStoplightApply([name, contents]) {
-                    // @ts-ignore
-                    return fns[name](contents);
+                return function matchStoplightApply(item) {
+                    return "Green" in item
+                        ? fns.Green(item.Green)
+                        : "Yellow" in item
+                        ? fns.Yellow(item.Yellow)
+                        : "Red" in item
+                        ? fns.Red(item.Red)
+                        : (console.assert(false, unexpected, item) as never);
                 };
             }
             export function match<R>(
                 value: Stoplight,
                 fns: {
-                    Green(content: 0): R;
-                    Yellow(content: 0): R;
-                    Red(content: 0): R;
+                    Green(content: Green): R;
+                    Yellow(content: Yellow): R;
+                    Red(content: Red): R;
                 }
             ): R {
                 return apply(fns)(value);

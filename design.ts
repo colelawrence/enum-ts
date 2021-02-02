@@ -33,24 +33,26 @@ function parseInteger(input: string): Result<number, string> {
   }
 }
 
-//#region enum-ts generated <afded0c975c7a073>
+//#region enum-ts generated <3aba71cab09d1668>
+type Ok<Ok, Err> = Ok;
+type Err<Ok, Err> = Err;
+function Ok<Ok, Err>(contents: Ok<Ok, Err>): { Ok: Ok<Ok, Err> } {
+  return { Ok: contents };
+}
+function Err<Ok, Err>(contents: Err<Ok, Err>): { Err: Err<Ok, Err> } {
+  return { Err: contents };
+}
+function isOk<Ok, Err>(item: Result<Ok, Err>): item is { Ok: Ok<Ok, Err> } {
+  return item != null && "Ok" in item;
+}
+function isErr<Ok, Err>(item: Result<Ok, Err>): item is { Err: Err<Ok, Err> } {
+  return item != null && "Err" in item;
+}
 namespace Result {
-  export function Ok<Ok, Err>(contents: Ok): Result<Ok, Err> {
-    return { Ok: contents };
-  }
-  export function Err<Ok, Err>(contents: Err): Result<Ok, Err> {
-    return { Err: contents };
-  }
-  export function isOk<Ok, Err>(item: Result<Ok, Err>): item is { Ok: Ok } {
-    return item != null && "Ok" in item;
-  }
-  export function isErr<Ok, Err>(item: Result<Ok, Err>): item is { Err: Err } {
-    return item != null && "Err" in item;
-  }
   const unexpected = "Unexpected Enum variant for Result<Ok, Err>";
   export function apply<Ok, Err, R>(fns: {
-    Ok(content: Ok): R;
-    Err(content: Err): R;
+    Ok(content: Ok<Ok, Err>): R;
+    Err(content: Err<Ok, Err>): R;
   }): (value: Result<Ok, Err>) => R {
     return function matchResultApply(item) {
       return "Ok" in item
@@ -63,8 +65,8 @@ namespace Result {
   export function match<Ok, Err, R>(
     value: Result<Ok, Err>,
     fns: {
-      Ok(content: Ok): R;
-      Err(content: Err): R;
+      Ok(content: Ok<Ok, Err>): R;
+      Err(content: Err<Ok, Err>): R;
     }
   ): R {
     return apply(fns)(value);
