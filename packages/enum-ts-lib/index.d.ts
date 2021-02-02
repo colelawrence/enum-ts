@@ -10,5 +10,5 @@
  * ```
  */
 export type Enum<T extends { [Variant: string]: any }> = {
-  [P in keyof T]: [P, T[P]];
+  [P in keyof T]: Record<P, T[P]>;
 }[keyof T];

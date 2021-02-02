@@ -23,10 +23,10 @@ pub(super) fn generate(
         src.push(&name);
         src.push(&braced_gen);
         src.push(" {");
-        // "return ["Ok", contents];"
-        src.ln_push_1("return [\"");
+        // "return { Ok: contents };"
+        src.ln_push_1("return { ");
         src.push(&t_name);
-        src.push("\", contents];");
+        src.push(": contents };");
         src.ln_push("}");
     }
 }

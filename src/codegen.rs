@@ -5,7 +5,7 @@ mod creators;
 mod type_guards;
 
 // if the enum generated type structure ever updates, then increment this
-pub const CODE_GEN_VERSION: usize = 2;
+pub const CODE_GEN_VERSION: usize = 3;
 pub fn generate(Parsed { enums, indent }: Parsed) -> String {
     let mut code = String::new();
     for ts_enum in enums {
@@ -109,12 +109,6 @@ impl Source {
     }
     fn ln_push_1(&mut self, s: &str) {
         self.code.push_str("\n");
-        self.code.push_str(&self.indent);
-        self.code.push_str(s);
-    }
-    fn ln_push_2(&mut self, s: &str) {
-        self.code.push_str("\n");
-        self.code.push_str(&self.indent);
         self.code.push_str(&self.indent);
         self.code.push_str(s);
     }

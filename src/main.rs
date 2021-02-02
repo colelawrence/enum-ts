@@ -45,7 +45,7 @@ fn pipe_mode(mode: args::PipeMode) {
                         println!("{}", generate(parsed));
                     }
                     args::PipeMode::ShowReplaceRangeVSCode => {
-                        if let Some((start, end, to_write)) = make_edit(&input) {
+                        if let Some((start, end, to_write)) = make_edit(&input, true) {
                             eprintln!(
                                 "update-range: L{}:{}-L{}:{}",
                                 start.line, start.col, end.line, end.col
@@ -56,7 +56,7 @@ fn pipe_mode(mode: args::PipeMode) {
                         }
                     }
                     args::PipeMode::ShowFullFile => {
-                        if let Some(to_write) = rewrite(&input) {
+                        if let Some(to_write) = rewrite(&input, true) {
                             eprintln!("Updated");
                             println!("{}", to_write);
                         } else {
@@ -99,6 +99,7 @@ fn write_mode(mut options: args::WriteOptions) {
     }
 
     let write = !options.dry_run;
+    let force = options.force_updates;
     walk_builder.build_parallel().run(|| {
         Box::new(
             |entry: std::result::Result<ignore::DirEntry, ignore::Error>| match &entry {
@@ -107,7 +108,7 @@ fn write_mode(mut options: args::WriteOptions) {
                         if file_type.is_file()
                             && RE_TYPESCRIPT_FILE.is_match(&dir.file_name().to_string_lossy())
                         {
-                            rewrite_file(dir.path(), write);
+                            rewrite_file(dir.path(), write, force);
                         }
                     }
                     ignore::WalkState::Continue
@@ -132,6 +133,7 @@ mod args {
     #[derive(Debug)]
     pub struct WriteOptions {
         pub dry_run: bool,
+        pub force_updates: bool,
         pub base_dir: PathBuf,
         pub paths: Vec<String>,
         pub ignore_files: Vec<String>,
@@ -173,6 +175,7 @@ mod args {
 
             let mut write_options = WriteOptions {
                 dry_run: true,
+                force_updates: false,
                 base_dir: cwd,
                 paths: Vec::new(),
                 // ignore: Vec::new(),
@@ -185,6 +188,9 @@ mod args {
                 match next_option.as_str() {
                     "-w" | "--write" => {
                         write_options.dry_run = false;
+                    }
+                    "-f" | "--force" => {
+                        write_options.force_updates = true;
                     }
                     "--ignore-file" => {
                         if let Some(ignore_file) = args_iterator.next() {

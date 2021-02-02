@@ -15,19 +15,19 @@ pub(super) fn generate(
         src.ln_push("export function is");
         src.push(&t_name);
         src.push(&braced_gen);
-        // "(item: Result<O, E>): item is ["Ok", O] {"
+        // "(item: Result<O, E>): item is { Ok: O } {"
         src.push("(item: ");
         src.push(&name);
         src.push(&braced_gen);
-        src.push("): item is [\"");
+        src.push("): item is { ");
         src.push(&t_name);
-        src.push("\", ");
+        src.push(": ");
         src.push(&contents);
-        src.push("] {");
-        // "return item != null && item[0] === "Ok";"
-        src.ln_push_1("return item != null && item[0] === \"");
+        src.push(" } {");
+        // "return item != null && "Ok" in item;"
+        src.ln_push_1("return item != null && \"");
         src.push(&t_name);
-        src.push("\";");
+        src.push("\" in item;");
         src.ln_push("}");
     }
 }
