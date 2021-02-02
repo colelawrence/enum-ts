@@ -72,7 +72,7 @@ jobs:
       - name: Upload release
         uses: softprops/action-gh-release@v1
         with:
-          body_path: CHANGELOG.md
+          body_path: RELEASE_NOTES.md
           files: |
             dist/enum-ts-win64.tar.gz
             dist/enum-ts-win32.tar.gz
@@ -87,9 +87,9 @@ jobs:
       #   run: |
       #     echo "//registry.npmjs.org/:_authToken=$NPM_ACCESS_TOKEN" > ".npmrc"
       #     npm publish
-      - name: Publish cargo package
-        env:
-          CARGO_ACCESS_TOKEN: ${{ secrets.CARGO_ACCESS_TOKEN }}
-        run: |
-          cargo login "$CARGO_ACCESS_TOKEN"
-          cargo publish
+      # - name: Publish cargo package
+      #   env:
+      #     CARGO_ACCESS_TOKEN: ${{ secrets.CARGO_ACCESS_TOKEN }}
+      #   run: |
+      #     cargo login "$CARGO_ACCESS_TOKEN"
+      #     cargo publish
