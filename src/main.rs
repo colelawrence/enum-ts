@@ -240,10 +240,10 @@ export type Stoplight = Enum<{
             export function Err<O, E>(contents: E): Result<O, E> {
                 return ["Err", contents];
             }
-            export function isOk<O, E>(item: Result): item is ["Ok", O] {
+            export function isOk<O, E>(item: Result<O, E>): item is ["Ok", O] {
                 return item != null && item[0] === "Ok";
             }
-            export function isErr<O, E>(item: Result): item is ["Err", E] {
+            export function isErr<O, E>(item: Result<O, E>): item is ["Err", E] {
                 return item != null && item[0] === "Err";
             }
             export function apply<O, E, R>(fns: {

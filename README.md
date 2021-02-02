@@ -22,7 +22,7 @@ Now whenever you write a type with `Enum` definition at the root of a file (cann
 
 ## Install
 
-This is currently just an executable you can install with
+This is currently just an executable you can install through compiling through cargo, or use by installing through npm (soon).
 
 ```sh
 cargo install enum-ts
@@ -70,20 +70,20 @@ type Result<O, E> = Enum<{
   <summary><b>Generated</b></summary>
 
 ```typescript
-namespace Result {
+export namespace Result {
   export function Ok<O, E>(contents: O): Result<O, E> {
-    return { t: "Ok", c: contents };
+    return ["Ok", contents];
   }
   export function Err<O, E>(contents: E): Result<O, E> {
-    return { t: "Err", c: contents };
+    return ["Err", contents];
   }
   export function apply<O, E, R>(fns: {
     Ok(content: O): R;
     Err(content: E): R;
   }): (value: Result<O, E>) => R {
-    return function matchResultApply(value) {
+    return function matchResultApply([name, contents]) {
       // @ts-ignore
-      return fns[value.t](value.c);
+      return fns[name](contents);
     };
   }
   export function match<O, E, R>(

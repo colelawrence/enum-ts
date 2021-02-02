@@ -1,0 +1,35 @@
+{
+  "name": "enum-ts-bin",
+  "version": "0.1.10",
+  "description": "enum-ts code generator cli for the enum-ts project",
+  "main": "binary.js",
+  "types": "binary.d.ts",
+  "scripts": {
+    "postinstall": "node ./install.js",
+    "preuninstall": "node ./uninstall.js"
+  },
+  "bin": {
+    "enum-ts": "./run.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/colelawrence/enum-ts.git"
+  },
+  "keywords": [
+    "enum",
+    "pattern",
+    "matching",
+    "rust",
+    "typescript",
+    "variants"
+  ],
+  "author": "Cole Lawrence <cole@colelawrence.com>",
+  "license": "MIT OR Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/colelawrence/enum-ts/issues"
+  },
+  "homepage": "https://github.com/colelawrence/enum-ts#readme",
+  "dependencies": {
+    "binary-install": "0.0.1"
+  }
+}

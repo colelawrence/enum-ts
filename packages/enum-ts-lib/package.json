@@ -1,0 +1,14 @@
+{
+  "name": "enum-ts-lib",
+  "version": "0.1.0",
+  "description": "Enum type helper for enum-ts project",
+  "main": "index.js",
+  "author": {
+    "name": "Cole Lawrence",
+    "email": "cole@colelawrence.com"
+  },
+  "types": "index.d.ts",
+  "repository": "https://github.com/colelawrence/enum-ts",
+  "license": "(MIT OR Apache-2.0)",
+  "private": false
+}

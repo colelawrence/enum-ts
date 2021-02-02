@@ -18,6 +18,7 @@ pub(super) fn generate(
         // "(item: Result<O, E>): item is ["Ok", O] {"
         src.push("(item: ");
         src.push(&name);
+        src.push(&braced_gen);
         src.push("): item is [\"");
         src.push(&t_name);
         src.push("\", ");

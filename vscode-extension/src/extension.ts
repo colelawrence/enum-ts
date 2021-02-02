@@ -2,6 +2,7 @@
 
 import execa = require("execa");
 import * as vscode from "vscode";
+import enumTSBinary = require("enum-ts-bin");
 
 const langs = ["typescript", "typescriptreact"];
 const langSet = new Set(langs);
@@ -71,7 +72,9 @@ export function activate(context: vscode.ExtensionContext) {
       }
 
       if (ENUM_RE.test(document.getText(range))) {
-        return [{ command: FIX_COMMAND, title: "enum-ts: Regenerate Enum helpers" }];
+        return [
+          { command: FIX_COMMAND, title: "enum-ts: Regenerate Enum helpers" },
+        ];
       }
 
       return [];
@@ -85,7 +88,7 @@ export function activate(context: vscode.ExtensionContext) {
     ): Thenable<vscode.TextEdit[]> {
       return editFormat(
         {
-          enumTSExecutable: "enum-ts",
+          enumTSExecutable: enumTSBinary.getBinaryPath(),
         },
         document
       ).then((enumEdit) => {
