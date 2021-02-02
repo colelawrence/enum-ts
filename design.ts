@@ -33,7 +33,7 @@ function parseInteger(input: string): Result<number, string> {
   }
 }
 
-//#region enum-ts generated <d24fa62894740a04>
+//#region enum-ts generated <4ed8f61a27143662>
 namespace Result {
   export function Ok<Ok, Err>(contents: Ok): Result<Ok, Err> {
     return ["Ok", contents];
@@ -41,10 +41,10 @@ namespace Result {
   export function Err<Ok, Err>(contents: Err): Result<Ok, Err> {
     return ["Err", contents];
   }
-  export function isOk<Ok, Err>(item: Result): item is ["Ok", Ok] {
+  export function isOk<Ok, Err>(item: Result<Ok, Err>): item is ["Ok", Ok] {
     return item != null && item[0] === "Ok";
   }
-  export function isErr<Ok, Err>(item: Result): item is ["Err", Err] {
+  export function isErr<Ok, Err>(item: Result<Ok, Err>): item is ["Err", Err] {
     return item != null && item[0] === "Err";
   }
   export function apply<Ok, Err, R>(fns: {
