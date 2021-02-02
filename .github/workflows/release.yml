@@ -65,7 +65,7 @@ jobs:
           export LIBZ_SYS_STATIC=1
           export CC=o64-clang
           export CXX=o64-clang++
-          cargo build --release --target "x86_64-apple-darwin"
+          cargo rustc --release --target="x86_64-apple-darwin" -- -C linker=x86_64-apple-darwin14-clang
           mkdir builds/enum-ts-macos
           cp target/x86_64-apple-darwin/release/enum-ts builds/enum-ts-macos
           tar -C builds -czvf dist/enum-ts-macos.tar.gz enum-ts-macos
