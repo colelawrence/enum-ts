@@ -18,6 +18,8 @@ pub(crate) mod prelude {
     pub use crate::{Parsed, TSEnum};
 }
 
+const VERSION: &'static str = env!("CARGO_PKG_VERSION");
+
 fn main() {
     let mode = match args::Mode::from_args(
         env::current_dir().expect("Something went wrong looking up current directory"),
@@ -158,19 +160,21 @@ mod args {
             let mut args_iterator = args.into_iter().peekable();
             let _executable = args_iterator.next();
             match args_iterator.peek() {
-                Some(arg) if arg == "--edit-l1c0" => {
-                    // one arg for edit mode
-                    return Ok(Mode::Pipe(PipeMode::ShowReplaceRangeVSCode));
-                }
-                Some(arg) if arg == "--full" => {
-                    // one arg for edit mode
-                    return Ok(Mode::Pipe(PipeMode::ShowFullFile));
-                }
+                Some(arg) => match arg.as_str() {
+                    "--edit-l1c0" => {
+                        // one arg for edit mode
+                        return Ok(Mode::Pipe(PipeMode::ShowReplaceRangeVSCode));
+                    }
+                    "--full" => {
+                        // one arg for edit mode
+                        return Ok(Mode::Pipe(PipeMode::ShowFullFile));
+                    }
+                    _ => {}
+                },
                 None => {
                     // no args will always be pipe mode
                     return Ok(Mode::Pipe(PipeMode::ShowGenerated));
                 }
-                _ => {}
             }
 
             let mut write_options = WriteOptions {
@@ -186,6 +190,10 @@ mod args {
 
             while let Some(next_option) = args_iterator.next() {
                 match next_option.as_str() {
+                    "-v" | "--version" => {
+                        // show version
+                        eprintln!("v{}", &crate::VERSION);
+                    }
                     "-w" | "--write" => {
                         write_options.dry_run = false;
                     }

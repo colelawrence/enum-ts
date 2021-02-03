@@ -1,6 +1,6 @@
 {
   "name": "enum-ts-bin",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "enum-ts code generator cli for the enum-ts project",
   "main": "binary.js",
   "types": "binary.d.ts",
