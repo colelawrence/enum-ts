@@ -34,7 +34,8 @@ updateFile("README.md", false, (current) =>
 );
 console.log(`Updated versions, now just create a commit, tag, and push tag:
 
-git add ${updatedFiles.join(" ")} && \\
+cargo check && \\
+git add Cargo.lock ${updatedFiles.join(" ")} && \\
 git commit -m "Release v${tagSansV}" && \\
 git tag v${tagSansV} && \\
 git push origin v${tagSansV} && \\
