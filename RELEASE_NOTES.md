@@ -1,7 +1,8 @@
-# v0.2.2: Wiring up CI to Publish
+# v0.2.3: Wiring up CI to Publish
 
 - Add `-v` and `--version` flags to print the crate's current version to stderr.
 - fix: Exclude all non-source files from `cargo publish`
+- Update `binary-install`
 
 # v0.2.0: Externally tagged enums
 

@@ -7,7 +7,7 @@ function getBinary() {
   const author = "colelawrence";
   const name = "enum-ts";
   const url = `https://github.com/${author}/${name}/releases/download/v${version}/${name}-${platform}.tar.gz`;
-  return new Binary(url, { name });
+  return new Binary(name, url);
 }
 
 module.exports = {
