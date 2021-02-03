@@ -22,10 +22,23 @@ Now whenever you write a type with `Enum` definition at the root of a file (cann
 
 ## Install
 
-This is currently just an executable you can install through compiling through cargo, or use by installing through npm (soon).
+This is currently just an executable you can install through compiling through cargo, or use by installing through npm.
 
 ```sh
 cargo install enum-ts
+# build from source hosted on crates.io
+
+
+npm install --global enum-ts-bin
+# install from npm registry with npm
+
+
+yarn global add enum-ts-bin
+# install from npm registry with yarn
+
+
+enum-ts --version
+# print version
 ```
 
 Then, you can test it out with one of the examples in `tests/` or in this README:
