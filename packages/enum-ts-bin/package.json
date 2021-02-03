@@ -1,12 +1,11 @@
 {
   "name": "enum-ts-bin",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "enum-ts code generator cli for the enum-ts project",
   "main": "binary.js",
   "types": "binary.d.ts",
   "scripts": {
-    "postinstall": "node ./install.js",
-    "preuninstall": "node ./uninstall.js"
+    "postinstall": "node ./install.js"
   },
   "bin": {
     "enum-ts": "./run.js"

@@ -1,3 +1,5 @@
+# v0.2.4: Fix npm uninstall script
+
 # v0.2.3: Wiring up CI to Publish
 
 - Add `-v` and `--version` flags to print the crate's current version to stderr.

@@ -8,37 +8,41 @@ const langs = ["typescript", "typescriptreact"];
 const langSet = new Set(langs);
 
 type Options = {
-  enumTSExecutable: string;
+  bin: string;
 };
 
 const REGION_TO_FOLD = /#region enum-ts generated/g;
 
 const FIX_COMMAND = "enum-ts.fix";
+const FIX_ALL_COMMAND = "enum-ts.fix-all";
 
-export function activate(context: vscode.ExtensionContext) {
+export function activate(_context: vscode.ExtensionContext) {
+  function getEnumTSPath() {
+    return enumTSBinary.getBinaryPath();
+  }
+
   // 👎 formatter implemented as separate command
   vscode.commands.registerCommand(FIX_COMMAND, () => {
     const { activeTextEditor } = vscode.window;
 
+    vscode.window.showErrorMessage(`enum-ts: ${getEnumTSPath()}`);
+
     if (activeTextEditor && langSet.has(activeTextEditor.document.languageId)) {
       const { document } = activeTextEditor;
-      return editFormat(
-        {
-          enumTSExecutable: "enum-ts",
-        },
-        document
-      ).then((enumEdit) => {
+      return editFormat({ bin: getEnumTSPath() }, document).then((enumEdit) => {
         if (enumEdit) {
           if (enumEdit.version === document.version) {
             const edit = new vscode.WorkspaceEdit();
             edit.replace(document.uri, enumEdit.range, enumEdit.replacement);
             return vscode.workspace.applyEdit(edit);
           } else {
-            vscode.window.showErrorMessage("Document changed while formatting");
+            vscode.window.showErrorMessage(
+              "enum-ts: Document changed while formatting"
+            );
           }
         } else {
           vscode.window.showInformationMessage(
-            "Already up-to-date based on hash. Delete regions to regenerate."
+            "enum-ts: Already up-to-date based on hash. Delete regions to regenerate."
           );
         }
       });
@@ -88,7 +92,7 @@ export function activate(context: vscode.ExtensionContext) {
     ): Thenable<vscode.TextEdit[]> {
       return editFormat(
         {
-          enumTSExecutable: enumTSBinary.getBinaryPath(),
+          bin: enumTSBinary.getBinaryPath(),
         },
         document
       ).then((enumEdit) => {
@@ -102,6 +106,39 @@ export function activate(context: vscode.ExtensionContext) {
       });
     },
   });
+
+  vscode.commands.registerCommand(FIX_ALL_COMMAND, () => {
+    const paths = [];
+    if (vscode.workspace.rootPath) {
+      paths.push(vscode.workspace.rootPath);
+    } else {
+      paths.push(
+        ...vscode.workspace.textDocuments
+          .filter((textDoc) => langSet.has(textDoc.languageId))
+          .map((textDoc) => textDoc.fileName)
+      );
+    }
+
+    if (!paths.length) {
+      vscode.window.showInformationMessage(
+        "enum-ts: Unable to find any files to update"
+      );
+      return;
+    }
+
+    return fixAll({
+      bin: getEnumTSPath(),
+      fixPaths: paths,
+    });
+  });
+}
+
+function fixAll(options: { bin: string; fixPaths: string[] }): Promise<any> {
+  return execa.command(
+    `${options.bin} --write ${options.fixPaths
+      .map((path) => JSON.stringify(path))
+      .join(" ")}`
+  );
 }
 
 const HAS_EDIT_RE = /update-range: L(\d+):(\d+)-L(\d+):(\d+)/;
@@ -115,7 +152,7 @@ function editFormat(
 } | null> {
   const versionAtStart = doc.version;
   return execa
-    .command(`${options.enumTSExecutable} --edit-l1c0`, {
+    .command(`${options.bin} --edit-l1c0`, {
       stdin: "pipe",
       input: doc.getText(),
     })

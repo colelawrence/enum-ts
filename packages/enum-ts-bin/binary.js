@@ -27,10 +27,6 @@ module.exports = {
     const binary = getBinary();
     return binary.install();
   },
-  uninstall() {
-    const binary = getBinary();
-    return binary.uninstall();
-  },
 };
 
 function getReleaseAssetPlatformSuffix() {
