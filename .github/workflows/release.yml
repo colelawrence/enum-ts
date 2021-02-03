@@ -81,12 +81,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # - name: Publish npm package
-      #   env:
-      #     NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
-      #   run: |
-      #     echo "//registry.npmjs.org/:_authToken=$NPM_ACCESS_TOKEN" > ".npmrc"
-      #     npm publish
+      - name: Publish npm package
+        working-directory: ./packages/enum-ts-bin
+        env:
+          NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+        run: |
+          echo "//registry.npmjs.org/:_authToken=$NPM_ACCESS_TOKEN" > ".npmrc"
+          npm publish
       - name: Publish cargo package
         env:
           CARGO_ACCESS_TOKEN: ${{ secrets.CARGO_ACCESS_TOKEN }}

@@ -1,6 +1,11 @@
-# v0.2.0
+# v0.2.1: Wiring up CI to Publish
 
- * Use externally tagged enums [see `serde`'s enum representations](https://serde.rs/enum-representations.html#externally-tagged)
+ * Fix CI to manage deployments to NPM
+ * fix: Exclude `vscode-extension` from `cargo publish`
+
+# v0.2.0: Externally tagged enums
+
+ * Use externally tagged enums (e.g. `{ "Variant1": contents }`) [see `serde`'s enum representations](https://serde.rs/enum-representations.html#externally-tagged)
  * Expose variant creator checks at the same level as the parent type (a-la Elm / FSharp names)
  * Add type guards
  * Fix nested variant types and declare type aliases for variants

@@ -1,6 +1,6 @@
 {
   "name": "enum-ts-bin",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "enum-ts code generator cli for the enum-ts project",
   "main": "binary.js",
   "types": "binary.d.ts",
@@ -30,6 +30,6 @@
   },
   "homepage": "https://github.com/colelawrence/enum-ts#readme",
   "dependencies": {
-    "binary-install": "0.0.1"
+    "binary-install": "^0.1.1"
   }
 }
