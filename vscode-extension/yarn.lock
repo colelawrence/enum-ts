@@ -115,10 +115,10 @@ diff@3.5.0:
   resolved "https://registry.yarnpkg.com/diff/-/diff-3.5.0.tgz#800c0dd1e0a8bfbc95835c202ad220fe317e5a12"
   integrity sha512-A46qtFgd+g7pDZinpnwiRJtxbC1hpgf0uzP3iG89scHk0AUC7A1TGxf5OiiOUv/JMZR8GOt8hL900hV0bOy5xA==
 
-enum-ts-bin@^0.2.3:
-  version "0.2.3"
-  resolved "https://registry.yarnpkg.com/enum-ts-bin/-/enum-ts-bin-0.2.3.tgz#c9dcf710fcebff858b9dcfad4ad68afe1969cca3"
-  integrity sha512-PIrapFH1YADqZo0JkkBkeYv0ctwD7XnzXFei8gAdw5kzlmpQDG2ZxroYZ1YlrE5qYI+54esHNxITdULS4hzLOw==
+enum-ts-bin@^0.2.4:
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/enum-ts-bin/-/enum-ts-bin-0.2.4.tgz#1097b6820592bf02cb88f3135c252dbae266becd"
+  integrity sha512-CeZUKeuM+EzjVk5FECpkm0um9vK6d8hbDsZOAtwO52Px2AMenKBd44GqJ+juDu56o6gg50c8tbtdl0N+qL4sqg==
   dependencies:
     binary-install "^0.1.1"
 

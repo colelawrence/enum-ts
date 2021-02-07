@@ -2,7 +2,7 @@
   "name": "enum-ts",
   "displayName": "enum-ts - Pattern Matching Code Generator",
   "description": "Use the enum-ts tool to regenerate enum definitions for a file.",
-  "version": "0.0.6",
+  "version": "0.2.0",
   "publisher": "refactorordie",
   "repository": {
     "url": "https://github.com/colelawrence/enum-ts"
@@ -44,7 +44,7 @@
     "vscode": "^1.1.37"
   },
   "dependencies": {
-    "enum-ts-bin": "^0.2.3",
+    "enum-ts-bin": "^0.2.4",
     "execa": "^5.0.0"
   }
 }

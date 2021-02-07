@@ -21,6 +21,15 @@ export function activate(_context: vscode.ExtensionContext) {
     return enumTSBinary.getBinaryPath();
   }
 
+  if (requiresInstallation()) {
+    enumTSBinary.install().catch((err) => {
+      const errMessage =
+        "enum-ts: Failed to install enum-ts binary for you architecture";
+      vscode.window.showErrorMessage(errMessage);
+      console.error(errMessage, err);
+    });
+  }
+
   // 👎 formatter implemented as separate command
   vscode.commands.registerCommand(FIX_COMMAND, () => {
     const { activeTextEditor } = vscode.window;
@@ -139,6 +148,17 @@ function fixAll(options: { bin: string; fixPaths: string[] }): Promise<any> {
       .map((path) => JSON.stringify(path))
       .join(" ")}`
   );
+}
+
+function requiresInstallation() {
+  const os = require("os");
+  const type = os.type();
+  const arch = os.arch();
+  if (type === "Darwin" && arch === "x64") {
+    return false;
+  }
+  // architecture does not match packaged binary
+  return true;
 }
 
 const HAS_EDIT_RE = /update-range: L(\d+):(\d+)-L(\d+):(\d+)/;
