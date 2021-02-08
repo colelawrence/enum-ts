@@ -2,7 +2,7 @@
 
 import execa = require("execa");
 import * as vscode from "vscode";
-import enumTSBinary = require("enum-ts-bin");
+// import enumTSBinary = require("enum-ts-bin");
 
 const langs = ["typescript", "typescriptreact"];
 const langSet = new Set(langs);
@@ -18,17 +18,17 @@ const FIX_ALL_COMMAND = "enum-ts.fix-all";
 
 export function activate(_context: vscode.ExtensionContext) {
   function getEnumTSPath() {
-    return enumTSBinary.getBinaryPath();
+    return "enum-ts"; // enumTSBinary.getBinaryPath();
   }
 
-  if (requiresInstallation()) {
-    enumTSBinary.install().catch((err) => {
-      const errMessage =
-        "enum-ts: Failed to install enum-ts binary for you architecture";
-      vscode.window.showErrorMessage(errMessage);
-      console.error(errMessage, err);
-    });
-  }
+  // if (requiresInstallation()) {
+  //   enumTSBinary.install().catch((err) => {
+  //     const errMessage =
+  //       "enum-ts: Failed to install enum-ts binary for you architecture";
+  //     vscode.window.showErrorMessage(errMessage);
+  //     console.error(errMessage, err);
+  //   });
+  // }
 
   // 👎 formatter implemented as separate command
   vscode.commands.registerCommand(FIX_COMMAND, () => {
@@ -101,7 +101,7 @@ export function activate(_context: vscode.ExtensionContext) {
     ): Thenable<vscode.TextEdit[]> {
       return editFormat(
         {
-          bin: enumTSBinary.getBinaryPath(),
+          bin: getEnumTSPath(),
         },
         document
       ).then((enumEdit) => {
@@ -150,16 +150,16 @@ function fixAll(options: { bin: string; fixPaths: string[] }): Promise<any> {
   );
 }
 
-function requiresInstallation() {
-  const os = require("os");
-  const type = os.type();
-  const arch = os.arch();
-  if (type === "Darwin" && arch === "x64") {
-    return false;
-  }
-  // architecture does not match packaged binary
-  return true;
-}
+// function requiresInstallation() {
+//   const os = require("os");
+//   const type = os.type();
+//   const arch = os.arch();
+//   if (type === "Darwin" && arch === "x64") {
+//     return false;
+//   }
+//   // architecture does not match packaged binary
+//   return true;
+// }
 
 const HAS_EDIT_RE = /update-range: L(\d+):(\d+)-L(\d+):(\d+)/;
 function editFormat(
