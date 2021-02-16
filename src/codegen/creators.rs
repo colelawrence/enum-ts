@@ -11,7 +11,7 @@ pub(super) fn generate(
 ) {
     // ex "" or "<Ok, Err>"
     let braced_gen = braced_generic(&generics, None);
-    for (t_name, _) in variants.iter() {
+    for (t_name, contents) in variants.iter() {
         // "export function Ok<O, E>("
         src.ln_push("");
         if *export {
@@ -21,11 +21,13 @@ pub(super) fn generate(
         src.push(&t_name);
         src.push(&braced_gen);
         src.push("(");
-        // "contents: Ok<O, E>"
-        src.push("contents: ");
-        // note: should be defined by type_aliases
-        src.push(&t_name);
-        src.push(&braced_gen);
+        if contents != "null" {
+            // "contents: Ok<O, E>"
+            src.push("contents: ");
+            // note: should be defined by type_aliases
+            src.push(&t_name);
+            src.push(&braced_gen);
+        }
         // "): { Ok: Ok<O, E> } {"
         src.push("): { ");
         src.push(&t_name);
@@ -36,7 +38,11 @@ pub(super) fn generate(
         // "return { Ok: contents };"
         src.ln_push_1("return { ");
         src.push(&t_name);
-        src.push(": contents };");
+        if contents != "null" {
+            src.push(": contents };");
+        } else {
+            src.push(": null };");
+        }
         src.ln_push("}");
     }
 }

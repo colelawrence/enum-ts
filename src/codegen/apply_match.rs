@@ -35,14 +35,18 @@ pub(super) fn generate(
     match_src.push(",");
     match_src.ln_push_1("fns: {");
     //
-    for (t_name, _) in variants.iter() {
+    for (t_name, content) in variants.iter() {
         // "Ok(content: Ok): R;"
         let mut variant_fn_src = src.new_with_same_settings();
         variant_fn_src.ln_push(&t_name);
-        variant_fn_src.push("(content: ");
-        variant_fn_src.push(&t_name);
-        variant_fn_src.push(&braced_gen);
-        variant_fn_src.push("): R;");
+        if content != "null" {
+            variant_fn_src.push("(content: ");
+            variant_fn_src.push(&t_name);
+            variant_fn_src.push(&braced_gen);
+            variant_fn_src.push("): R;");
+        } else {
+            variant_fn_src.push("(): R;");
+        }
 
         apply_src.push_source_1(variant_fn_src.clone());
         match_src.push_source_2(variant_fn_src);
@@ -58,7 +62,7 @@ pub(super) fn generate(
     // "return "Ok" in item"
     let mut variant_check_src = src.new_with_same_settings();
     variant_check_src.ln_push("return ");
-    for (t_name, _) in variants.iter() {
+    for (t_name, content) in variants.iter() {
         // ""Ok" in item"
         variant_check_src.push("\"");
         variant_check_src.push(&t_name);
@@ -66,9 +70,13 @@ pub(super) fn generate(
         // "? fns.Ok(item.Ok)"
         variant_check_src.ln_push_1("? fns.");
         variant_check_src.push(&t_name);
-        variant_check_src.push("(item.");
-        variant_check_src.push(&t_name);
-        variant_check_src.push(")");
+        if content != "null" {
+            variant_check_src.push("(item.");
+            variant_check_src.push(&t_name);
+            variant_check_src.push(")");
+        } else {
+            variant_check_src.push("()");
+        }
         variant_check_src.ln_push_1(": ");
     }
     // ": (console.assert(false, unexpected, item) as never);"

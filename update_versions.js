@@ -1,4 +1,5 @@
 // @ts-check
+// Usage e.g. `node update_versions.js v0.2.8`
 const fs = require("fs");
 
 const TAG_RE = /^v?(\d+\.\d+\.\d+)$/;

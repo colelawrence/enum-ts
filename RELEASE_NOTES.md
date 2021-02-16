@@ -1,3 +1,7 @@
+# v0.2.6: Codegen improvements
+
+- Treat enum variants with `null` content to not accept creator arg or be passed match arg.
+
 # v0.2.4: Fix npm uninstall script
 
 # v0.2.3: Wiring up CI to Publish
